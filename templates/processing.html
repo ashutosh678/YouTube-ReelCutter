@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Processing Video - YouTube to Reels Converter</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title text-center mb-4">Processing Your Video</h1>
+                        
+                        <div class="text-center mb-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+
+                        <div class="progress mb-4">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 0%"
+                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            </div>
+                        </div>
+
+                        <div class="text-center mb-4">
+                            <h4 id="statusText" class="text-muted">Initializing...</h4>
+                            <p id="stepDescription" class="text-muted">
+                                Please wait while we process your video
+                            </p>
+                        </div>
+
+                        <div class="processing-steps">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="step-indicator" id="step1">
+                                    <span class="badge bg-secondary rounded-circle p-2">1</span>
+                                </div>
+                                <div class="ms-3">Downloading YouTube video</div>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="step-indicator" id="step2">
+                                    <span class="badge bg-secondary rounded-circle p-2">2</span>
+                                </div>
+                                <div class="ms-3">Analyzing video content</div>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="step-indicator" id="step3">
+                                    <span class="badge bg-secondary rounded-circle p-2">3</span>
+                                </div>
+                                <div class="ms-3">Generating segments</div>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <div class="step-indicator" id="step4">
+                                    <span class="badge bg-secondary rounded-circle p-2">4</span>
+                                </div>
+                                <div class="ms-3">Finalizing reels</div>
+                            </div>
+                        </div>
+
+                        <div id="errorAlert" class="alert alert-danger mt-4 d-none" role="alert">
+                            <strong>Error:</strong> <span id="errorMessage"></span>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <a href="/" class="btn btn-secondary">Back to Home</a>
+                            <a id="viewResultsBtn" href="/results" class="btn btn-primary d-none">View Results</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBar = document.querySelector('.progress-bar');
+            const statusText = document.getElementById('statusText');
+            const stepDescription = document.getElementById('stepDescription');
+            const viewResultsBtn = document.getElementById('viewResultsBtn');
+            const errorAlert = document.getElementById('errorAlert');
+            const errorMessage = document.getElementById('errorMessage');
+
+            let processingInterval;
+
+            function updateStepIndicator(progress) {
+                const steps = document.querySelectorAll('.step-indicator .badge');
+                steps.forEach((step, index) => {
+                    step.classList.remove('bg-primary', 'bg-secondary');
+                    if (progress >= (index + 1) * 25) {
+                        step.classList.add('bg-primary');
+                    } else {
+                        step.classList.add('bg-secondary');
+                    }
+                });
+            }
+
+            function updateStatus() {
+                fetch('/status')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            throw new Error(data.error);
+                        }
+
+                        const progress = data.progress;
+                        progressBar.style.width = `${progress}%`;
+                        progressBar.setAttribute('aria-valuenow', progress);
+                        
+                        updateStepIndicator(progress);
+
+                        if (progress < 30) {
+                            statusText.textContent = 'Downloading video...';
+                        } else if (progress < 50) {
+                            statusText.textContent = 'Analyzing content...';
+                        } else if (progress < 80) {
+                            statusText.textContent = 'Generating segments...';
+                        } else {
+                            statusText.textContent = 'Finalizing reels...';
+                        }
+
+                        if (data.status === 'completed') {
+                            clearInterval(processingInterval);
+                            statusText.textContent = 'Processing Complete!';
+                            stepDescription.textContent = 'Your reels are ready to download';
+                            viewResultsBtn.classList.remove('d-none');
+                        }
+                    })
+                    .catch(error => {
+                        clearInterval(processingInterval);
+                        errorAlert.classList.remove('d-none');
+                        errorMessage.textContent = error.message;
+                    });
+            }
+
+            // Start progress monitoring
+            processingInterval = setInterval(updateStatus, 1000);
+            updateStatus(); // Initial check
+        });
+    </script>
+</body>
+</html>
