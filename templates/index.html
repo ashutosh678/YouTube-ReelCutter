@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video to Reels Converter</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h1 class="card-title text-center mb-4">YouTube to Reels Converter</h1>
+                        
+                        <form id="videoForm" class="mb-4">
+                            <div class="mb-3">
+                                <label for="youtube_url" class="form-label">YouTube Video URL</label>
+                                <input type="url" class="form-control" id="youtube_url" name="youtube_url" 
+                                       required placeholder="https://www.youtube.com/watch?v=...">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Process Video</button>
+                        </form>
+
+                        <div id="processingSection" class="d-none">
+                            <div class="progress mb-3">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <p class="text-center" id="statusText">Processing video...</p>
+                        </div>
+
+                        <div id="resultsSection" class="d-none">
+                            <h3 class="mb-3">Generated Reels</h3>
+                            <div class="row" id="reelsContainer">
+                                <!-- Reel items will be added here dynamically -->
+                            </div>
+                        </div>
+
+                        <div id="errorSection" class="d-none">
+                            <div class="alert alert-danger" role="alert">
+                                <span id="errorText"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
